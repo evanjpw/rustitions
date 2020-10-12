@@ -1,6 +1,9 @@
 # rustitions
 A Rust State Machine Library Modeled After PyTransitions
 
+## THIS DOESN'T WORK NOW
+\(Will update when it does.\)
+
 This is a dynamic state machine library for Rust, modeled after
 the **[pytransitions/transitions](https://github.com/pytransitions/transitions)**
 Python state machine package.
