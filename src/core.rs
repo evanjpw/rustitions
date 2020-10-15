@@ -11,7 +11,11 @@ use log::{debug, info};
 
 use crate::error::Error;
 use crate::event::EventData;
+use crate::machine::getattr;
 use crate::Result;
+use append::Append;
+use std::borrow::Borrow;
+use std::iter::Chain;
 
 pub struct TriggerFunction {
     function: Box<dyn Fn(&EventData)>,
@@ -21,15 +25,30 @@ pub struct TriggerFunction {
 impl TriggerFunction {
     pub fn new<F>(f: F, name: Option<String>) -> Self
     where
-        F: Fn(&EventData),
+        F: Fn(&EventData) + 'static,
     {
         let function = Box::new(f);
         TriggerFunction { function, name }
     }
 
     pub fn execute(&self, event_data: &EventData) {
-        self.function(event_data)
+        (self.function)(event_data)
     }
+
+    /// Converts a model's property name, method name or a path to a callable into a callable.
+    ///             If func is not a string it will be returned unaltered.
+    ///         Args:
+    ///             self (str or callable): Property name, method name or a path to a callable
+    ///             event_data (EventData): Currently processed event
+    ///         Returns:
+    ///             callable function resolved from string or func
+    pub fn resolve_callable(self, event_data: &EventData) -> Self {
+        todo!()
+    }
+
+    // pub fn chain<U>(self, other: U) -> Chain<Self, <U as IntoIterator>::IntoIter>
+    //     where
+    //         U: IntoIterator<Item = Self::Item>, { self.}
 }
 
 impl Debug for TriggerFunction {
@@ -52,7 +71,7 @@ pub enum StateTriggerType {
 
 #[derive(Debug)]
 pub enum StateTrigger {
-    EnterTrigger(TriggerFunctionF),
+    EnterTrigger(TriggerFunction),
     ExitTrigger(TriggerFunction),
 }
 
@@ -70,12 +89,12 @@ impl StateTrigger {
 
     pub fn execute(&self, event_data: &EventData) {
         match self {
-            StateTrigger::EnterTrigger(e) => e(event_data),
-            StateTrigger::ExitTrigger(e) => e(event_data),
+            StateTrigger::EnterTrigger(e) => e.execute(event_data),
+            StateTrigger::ExitTrigger(e) => e.execute(event_data),
         }
     }
 
-    pub fn callback(&self) -> &F {
+    pub fn callback(&self) -> &TriggerFunction {
         match self {
             StateTrigger::EnterTrigger(e) => e,
             StateTrigger::ExitTrigger(e) => e,
@@ -139,6 +158,10 @@ impl State {
         }
     }
 
+    pub fn from_str(name: &str) -> Self {
+        todo!()
+    }
+
     pub fn name(self) -> String {
         self.name.clone()
     }
@@ -156,8 +179,8 @@ impl State {
             "{}: Entering state {}. Processing callbacks...",
             event_data.machine.name, self.name
         );
-        let machine = event_data.machine;
-        let mut callbacks: Vec<&F> = Vec::new();
+        let machine = &*event_data.machine;
+        let mut callbacks: Vec<&TriggerFunction> = Vec::new();
         for func in self.on_enter.as_slice() {
             callbacks.push(func.callback());
         }
@@ -170,13 +193,13 @@ impl State {
     }
 
     /// Triggered when a state is exited.
-    pub fn exit(self, event_data: &EventData) {
+    pub fn exit(&self, event_data: &EventData) {
         debug!(
             "{}: Exiting state {}. Processing callbacks...",
             event_data.machine.name, self.name
         );
-        let machine = event_data.machine;
-        let mut callbacks: Vec<&F> = Vec::new();
+        let machine = &*event_data.machine;
+        let mut callbacks: Vec<&TriggerFunction> = Vec::new();
         for func in self.on_exit.as_slice() {
             callbacks.push(func.callback());
         }
@@ -218,14 +241,43 @@ pub struct ConditionFunction {
 impl ConditionFunction {
     pub fn new<F>(f: F, name: Option<String>) -> Self
     where
-        F: Fn(&EventData) -> bool,
+        F: Fn(&EventData) -> bool + 'static,
     {
         let function = Box::new(f);
         ConditionFunction { function, name }
     }
 
     pub fn execute(&self, event_data: &EventData) -> bool {
-        self.function(event_data)
+        (self.function)(event_data)
+    }
+
+    /// Converts a model's property name, method name or a path to a callable into a callable.
+    ///             If func is not a string it will be returned unaltered.
+    ///         Args:
+    ///             self (str or callable): Property name, method name or a path to a callable
+    ///             event_data (EventData): Currently processed event
+    ///         Returns:
+    ///             callable function resolved from string or func
+    pub fn resolve_callable(&self, event_data: &EventData) -> Self {
+        // if isinstance(func, string_types):
+        // try:
+        // func = getattr(event_data.model, func)
+        // if not callable(func):  # if a property or some other not callable attribute was passed
+        // def func_wrapper(*_, **__):  # properties cannot process parameters
+        // return func
+        // return func_wrapper
+        // except AttributeError:
+        // try:
+        // mod, name = func.rsplit('.', 1)
+        // m = __import__(mod)
+        // for n in mod.split('.')[1:]:
+        // m = getattr(m, n)
+        // func = getattr(m, name)
+        // except (ImportError, AttributeError, ValueError):
+        // raise AttributeError("Callable with name '%s' could neither be retrieved from the passed "
+        // "model nor imported from a module." % func)
+        // return func
+        todo!()
     }
 }
 
@@ -275,19 +327,16 @@ impl Condition {
     ///                 from (if event sending is disabled). Also contains the data
     ///                 model attached to the current machine which is used to invoke
     ///                 the condition.
-    pub fn check(&self, event_data: &EventData) -> bool {
-        let predicate = event_data.machine.resolve_callable(&self.func, event_data);
+    pub fn check(&mut self, event_data: &EventData) -> bool {
+        let predicate = &self.func.resolve_callable(event_data);
         if event_data.machine.send_event {
-            return predicate(event_data) == self.target;
+            return predicate.execute(event_data) == self.target;
         }
         todo!() // return predicate(*event_data.args, **event_data.kwargs) == self.target
     }
 }
 
-impl Display for Condition
-where
-    F: Fn(&EventData) -> bool, //, bool
-{
+impl Display for Condition {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         //"<%s(%s)@%s>" % (type(self).__name__, self.func, id(self))
         // Can't `Debug::fmt(self, f)` because type "F" isn't `Debug`
@@ -310,6 +359,14 @@ pub struct PotentialConditions {
 #[derive(Debug)]
 pub struct PotentialTriggers {
     triggers: Vec<TriggerFunction>,
+}
+
+impl Append<TriggerFunction> for PotentialTriggers {
+    type Common = TriggerFunction;
+
+    fn append(&mut self, value: TriggerFunction) {
+        self.triggers.push(value)
+    }
 }
 
 pub struct TransitionParameters;
@@ -366,11 +423,7 @@ impl Transition {
         before: PotentialTriggers,
         after: PotentialTriggers,
         prepare: PotentialTriggers,
-    ) -> Self
-    where
-        C: Fn(&EventData) -> bool,
-        T: Fn(&EventData),
-    {
+    ) -> Self {
         Transition {
             source,
             dest,
@@ -382,8 +435,8 @@ impl Transition {
         }
     }
 
-    fn eval_conditions(&self, event_data: &EventData) -> bool {
-        for cond in &self.conditions.conditions {
+    fn eval_conditions(&mut self, event_data: &EventData) -> bool {
+        for mut cond in self.conditions.conditions.iter_mut() {
             if !cond.check(&event_data) {
                 debug!(
                     "{} Transition condition failed: {}() does not return {}. Transition halted.",
@@ -399,15 +452,16 @@ impl Transition {
     ///         Args:
     ///             event_data: An instance of class EventData.
     ///         Returns: boolean indicating whether or not the transition was
-    ///             successfully executed (True if successful, False if not).
-    pub fn execute(&self, event_data: EventData) -> bool {
+    ///             successfully executed (True if successful, False if not).&iter().map(|f| f).collect()
+    pub fn execute(&mut self, event_data: &mut EventData) -> bool {
         debug!(
             "{}: Initiating transition from state {} to state ...{:?}",
             event_data.machine.name, self.source, self.dest
         );
-        event_data
-            .machine
-            .callbacks(self.prepare.triggers.as_slice(), &event_data);
+        event_data.machine.callbacks(
+            &self.prepare.triggers.iter().collect::<Vec<_>>().as_slice(),
+            &event_data,
+        );
         debug!(
             "{}: Executed callbacks before conditions.",
             &event_data.machine.name,
@@ -416,10 +470,16 @@ impl Transition {
             return false;
         }
 
-        event_data.machine.callbacks(
-            itertools.chain(&event_data.machine.before_state_change, &self.before),
-            &event_data,
-        );
+        let functions: Vec<_> = event_data
+            .machine
+            .before_state_change
+            .iter()
+            .chain(&self.before.triggers)
+            .into_iter()
+            .collect();
+        event_data
+            .machine
+            .callbacks(functions.as_slice(), &event_data);
         debug!(
             "{}: Executed callback before transition.",
             event_data.machine.name
@@ -427,12 +487,18 @@ impl Transition {
 
         // if self.dest is None this is an internal transition with no actual state change
         if self.dest.is_some() {
-            self.change_state(&event_data)
+            self.change_state(event_data)
         }
-        event_data.machine.callbacks(
-            itertools.chain(&self.after, &event_data.machine.after_state_change),
-            &event_data,
-        );
+        let functions: Vec<_> = self
+            .after
+            .triggers
+            .iter()
+            .chain(&event_data.machine.after_state_change)
+            .into_iter()
+            .collect();
+        event_data
+            .machine
+            .callbacks(functions.as_slice(), &event_data);
         debug!(
             "{}: Executed callback after transition.",
             event_data.machine.name
@@ -440,14 +506,19 @@ impl Transition {
         return true;
     }
 
-    fn change_state(self, event_data: &EventData) {
-        event_data.machine.get_state(self.source).exit(event_data);
-        event_data.machine.set_state(self.dest, event_data.model);
+    fn change_state(&mut self, event_data: &mut EventData) {
+        //lf.
+        let dest_state = State::from_str(self.dest.as_ref().map(|s| s.borrow()).unwrap_or_else(|| ""));
+        let source_state = State::from_str(&self.source);
+        event_data.machine.get_state(&source_state).exit(event_data);
+        event_data
+            .machine
+            .set_state(&dest_state, Some(event_data.model));
         event_data.update(getattr(
             event_data.model,
-            event_data.machine.model_attribute,
+            &*event_data.machine.model_attribute,
         ));
-        event_data.machine.get_state(&self.dest).enter(event_data)
+        event_data.machine.get_state(&dest_state).enter(event_data)
     }
 
     /// Add a new before, after, or prepare callback.
@@ -455,7 +526,7 @@ impl Transition {
     ///             trigger (str): The type of triggering event. Must be one of
     ///                 'before', 'after' or 'prepare'.
     ///             func (str): The name of the callback function.
-    pub fn add_callback(&mut self, trigger: TransitionTriggerType, func: T) {
+    pub fn add_callback(&mut self, trigger: TransitionTriggerType, func: TriggerFunction) {
         // callback_list = getattr(self, trigger)
         match trigger {
             TransitionTriggerType::Before => self.before.append(func),

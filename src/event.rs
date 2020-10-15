@@ -2,7 +2,7 @@
 
 use crate::core::{State, Transition, TransitionTriggerType, TriggerFunction};
 use crate::error::Error;
-use crate::machine::Machine;
+use crate::machine::{Machine, Model};
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 
 /// Collection of relevant data related to the ongoing transition attempt.
@@ -18,19 +18,19 @@ use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 ///         transition (Transition): Currently active transition. Will be assigned during triggering.
 ///         error (Error): In case a triggered event causes an Error, it is assigned here and passed on.
 ///         result (bool): True in case a transition has been successful, False otherwise.
-pub struct EventData<'a> {
+pub struct EventData<'a, 'b: 'a> {
     state: &'a State,
-    event: &'a Event<'_>,
-    pub(crate) machine: &'a Machine,
-    model: &'a Model,
+    event: &'a Event<'b>,
+    pub(crate) machine: &'a mut Machine,
+    pub(crate) model: &'a Model,
     //*args
-    //**kwargs
+    //**kwargs_
     transition: Option<&'a Transition>,
     error: Option<Error>,
     result: bool,
 }
 
-impl EventData<'_> {
+impl<'a, 'b> EventData<'a, 'b> {
     ///         Args:
     ///             state (State): The State from which the Event was triggered.
     ///             event (Event): The triggering Event.
@@ -40,7 +40,7 @@ impl EventData<'_> {
     ///                 to store internally for possible later use.
     ///             kwargs (dict): Optional keyword arguments from trigger method
     ///                 to store internally for possible later use.
-    pub fn new(state: &State, event: &Event, machine: &Machine, model: &Model) -> Self {
+    pub fn new(state: &'a State, event: &'b Event, machine: &'a mut Machine, model: &'a Model) -> Self {
         //, args, kwargs
         // self.args = args
         // self.kwargs = kwargs
@@ -65,13 +65,13 @@ impl EventData<'_> {
     }
 }
 
-impl Display for EventData<'_> {
+impl Display for EventData<'_, '_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         unimplemented!()
     }
     // def __repr__(self):
     // return "<%s('%s', %s)@%s>" % (type(self).__name__, self.state,
-    // getattr(self, 'transition'), id(self))
+    // getattr(self, 'transition'), id(self))_
 }
 
 #[derive(Debug)]
@@ -82,13 +82,13 @@ pub struct Event<'a> {
     //transitions
 }
 
-impl Event {
+impl<'a> Event<'a> {
     ///         Args:
     ///             name (str): The name of the event, which is also the name of the
     ///                 triggering callable (e.g., 'advance' implies an advance()
     ///                 method).
     ///             machine (Machine): The current Machine instance.
-    pub fn new(name: String, machine: &Machine) -> Self {
+    pub fn new(name: String, machine: &'a Machine) -> Self {
         Event { name, machine }
         // self.transitions = defaultdict(list)
     }
@@ -97,7 +97,7 @@ impl Event {
     ///         Args:
     ///             transition (Transition): The Transition instance to add to the
     ///                 list.
-    pub fn add_transition(self, transition: Transiton) {
+    pub fn add_transition(self, transition: Transition) {
         // self.transitions[transition.source].append(transition)
     }
 
@@ -168,7 +168,7 @@ impl Event {
     }
 }
 
-impl Display for Event {
+impl Display for Event<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Debug::fmt(self, f)
     }

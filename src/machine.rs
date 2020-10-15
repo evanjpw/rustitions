@@ -1,11 +1,15 @@
 //!
 
-use crate::core::{State, StateTrigger};
+use crate::core::{ConditionFunction, State, StateTrigger, TransitionParameters, TriggerFunction};
 use crate::event::EventData;
 use indexmap::IndexMap;
 use log::info;
 
-type Model = Machine;
+pub(crate) type Model = Machine;
+
+pub fn getattr(model: &Model, attribute: &str) -> State {
+    todo!()
+}
 
 /// Machine manages states, transitions and ;
 /// models. In case it is initialized without a specific model
@@ -33,21 +37,22 @@ type Model = Machine;
 ///             present state (e.g., calling an a_to_b() trigger when the current state is c) will be silently
 ///             ignored rather than raising an invalid transition exception.
 ///         name (str): Name of the ``Machine`` instance mainly used for easier log message distinction.
-pub struct Machine
-{
+#[derive(Debug)]
+pub struct Machine {
     // states: IndexMap<String, State>,
     // initial: String,
     models: Vec<Model>,
     //events
-    // prepare_event
-    // before_state_change
-    // after_state_change
+    // prepare_event////
+    pub before_state_change: Vec<TriggerFunction>,
+    pub after_state_change: Vec<TriggerFunction>,
     // finalize_event
     queued: bool,
     pub(crate) send_event: bool,
     auto_transitions: bool,
     ignore_invalid_triggers: bool,
     pub name: String,
+    pub(crate) model_attribute: String,
 }
 
 ///   separates callback type from state/transition name
@@ -60,8 +65,7 @@ const WILDCARD_SAME: char = '=';
 // transition_cls = Transition
 // event_cls = Event
 
-impl Machine
-{
+impl Machine {
     ///         Args:
     ///             model (object or list): The object(s) whose states we want to manage. If 'self',
     ///                 the current Machine instance will be used the model (i.e., all
@@ -107,20 +111,20 @@ impl Machine
     ///             **kwargs additional arguments passed to next class in MRO. This can be ignored in most cases.
     /// model_attribute='state'???
     pub fn new(
-        model: Option<Model>, /*=self*/
-        states: &[State],//=None=None
-        initial: Option<State>,             /*='initial'*/
-        transitions: &[TranstitionParameters], /*=None*/
-        send_event: bool,                      /*=False*/
-        auto_transitions: bool,                /*=True*/
-        ordered_transitions: bool,             /*=False*/
-        ignore_invalid_triggers: bool,         /*=None*/
-        before_state_change: F,                /*=None*/
-        after_state_change: F,                 /*=None*/
-        name: Option<String>,                  /*=None*/
-        queued: bool,                          /*=False*/
-        prepare_event: F,                      /*=None*/
-        finalize_event: F,
+        model: Option<Model>,                                  /*=self*/
+        states: &[State],                                      //=None=None
+        initial: Option<State>,                                /*='initial'*/
+        transitions: &[TransitionParameters],                  /*=None*/
+        send_event: bool,                                      /*=False*/
+        auto_transitions: bool,                                /*=True*/
+        ordered_transitions: bool,                             /*=False*/
+        ignore_invalid_triggers: bool,                         /*=None*/
+        possible_before_state_change: Option<TriggerFunction>, /*=None*/
+        possible_after_state_change: Option<TriggerFunction>,  /*=None*/
+        name: Option<String>,                                  /*=None*/
+        queued: bool,                                          /*=False*/
+        prepare_event: TriggerFunction,                        /*=None*/
+        finalize_event: TriggerFunction,
         model_attribute: Option<String>, /*='state'*/ /*,kwargs*/
     ) -> Self {
         // # calling super in case `Machine` is used as a mix in
@@ -136,13 +140,13 @@ impl Machine
         // self._initial = None
 
         // self.states = OrderedDict()
-
-// let initial
-    // let states
+        // lf
+        // let initial
+        // let states
         let models: Vec<Model> = Vec::new();
-        let name = name.map(|n| n + ": ").unwrap_or_else(||String::from(""));
+        let name = name.map(|n| n + ": ").unwrap_or_else(|| String::from(""));
 
-        // self.model_attribute = model_attribute
+        let model_attribute = model_attribute.unwrap_or_else(|| String::from("state"));
 
         // self.models = []
 
@@ -162,15 +166,28 @@ impl Machine
         // self.add_model(model)
         // self.events = {}
         // self.prepare_event = prepare_event
-        // self.before_state_change = before_state_change
-        // self.after_state_change = after_state_change
-        // self.finalize_event = finalize_event
-        Machine {send_event, queued, auto_transitions, ignore_invalid_triggers, name, models,
+        let mut before_state_change: Vec<TriggerFunction> = Vec::new();
+        if let Some(f) = possible_before_state_change {
+            before_state_change.push(f);
         }
-        // self._before_state_change = []
-        // self._after_state_change = []
+        let mut after_state_change: Vec<TriggerFunction> = Vec::new();
+        if let Some(f) = possible_after_state_change {
+            after_state_change.push(f);
+        }
+        // self.finalize_event = finalize_event
         // self._prepare_event = []
         // self._finalize_event = []
+        Machine {
+            send_event,
+            queued,
+            auto_transitions,
+            ignore_invalid_triggers,
+            name,
+            models,
+            before_state_change,
+            after_state_change,
+            model_attribute,
+        }
     }
 
     // def add_model(self, model, initial=None):
@@ -293,111 +310,136 @@ impl Machine
     // @finalize_event.setter
     // def finalize_event(self, value):
     // self._finalize_event = listify(value)
-    //
-    // def get_state(self, state):
-    // """ Return the State instance with the passed name. """
-    // if isinstance(state, Enum):
-    // state = state.name
-    // if state not in self.states:
-    // raise ValueError("State '%s ' is not a registered state." % state)
-    // return self.states[state]
-    //
+
+    /// Return the State instance with the passed name.
+    pub fn get_state(&self, state: &State) -> &State {
+        // if isinstance(state, Enum):
+        // state = state.name
+        // if state not in self.states:
+        // raise ValueError("State '%s ' is not a registered state." % state)
+        // return self.states[state]
+        todo!()
+    }
+
     // # In theory this function could be static. This however causes some issues related to inheritance and
     // # pickling down the chain.
-    // def is_state(self, state, model):
-    // """ Check whether the current state matches the named state. This function is not called directly
-    //             but assigned as partials to model instances (e.g. is_A -> partial(_is_state, 'A', model)).
-    //         Args:
-    //             state (str): name of the checked state
-    //             model: model to be checked
-    //         Returns:
-    //             bool: Whether the model's current state is state.
-    //         """
-    // return getattr(model, self.model_attribute) == state
-    //
-    // def get_model_state(self, model):
-    // return self.get_state(getattr(model, self.model_attribute))
-    //
-    // def set_state(self, state, model=None):
-    // """
-    //             Set the current state.
-    //         Args:
-    //             state (str or Enum or State): value of state to be set
-    //             model (optional[object]): targeted model; if not set, all models will be set to 'state'
-    //         """
-    // if not isinstance(state, State):
-    // state = self.get_state(state)
-    // models = self.models if model is None else listify(model)
-    //
-    // for mod in models:
-    // setattr(mod, self.model_attribute, state.value)
-    //
-    // def add_state(self, *args, **kwargs):
-    // """ Alias for add_states. """
-    // self.add_states(*args, **kwargs)
-    //
-    // def add_states(self, states, on_enter=None, on_exit=None,
-    // ignore_invalid_triggers=None, **kwargs):
-    // """ Add new state(s).
-    //         Args:
-    //             states (list, str, dict, Enum or State): a list, a State instance, the
-    //                 name of a new state, an enumeration (member) or a dict with keywords to pass on to the
-    //                 State initializer. If a list, each element can be a string, State or enumeration member.
-    //             on_enter (str or list): callbacks to trigger when the state is
-    //                 entered. Only valid if first argument is string.
-    //             on_exit (str or list): callbacks to trigger when the state is
-    //                 exited. Only valid if first argument is string.
-    //             ignore_invalid_triggers: when True, any calls to trigger methods
-    //                 that are not valid for the present state (e.g., calling an
-    //                 a_to_b() trigger when the current state is c) will be silently
-    //                 ignored rather than raising an invalid transition exception.
-    //                 Note that this argument takes precedence over the same
-    //                 argument defined at the Machine level, and is in turn
-    //                 overridden by any ignore_invalid_triggers explicitly
-    //                 passed in an individual state's initialization arguments.
-    //             **kwargs additional keyword arguments used by state mixins.
-    //         """
-    //
-    // ignore = ignore_invalid_triggers
-    // if ignore is None:
-    // ignore = self.ignore_invalid_triggers
-    //
-    // states = listify(states)
-    //
-    // for state in states:
-    // if isinstance(state, (string_types, Enum)):
-    // state = self._create_state(
-    // state, on_enter=on_enter, on_exit=on_exit,
-    // ignore_invalid_triggers=ignore, **kwargs)
-    // elif isinstance(state, dict):
-    // if 'ignore_invalid_triggers' not in state:
-    // state['ignore_invalid_triggers'] = ignore
-    // state = self._create_state(**state)
-    // self.states[state.name] = state
-    // for model in self.models:
-    // self._add_model_to_state(state, model)
-    // if self.auto_transitions:
-    // for a_state in self.states.keys():
-    // # add all states as sources to auto transitions 'to_<state>' with dest <state>
-    // if a_state == state.name:
-    // if self.model_attribute == 'state':
-    // method_name = 'to_%s' % a_state
-    // else:
-    // method_name = 'to_%s_%s' % (self.model_attribute, a_state)
-    // self.add_transition('to_%s' % a_state, self.WILDCARD_ALL, a_state,
-    // prepare=partial(_warning_wrapper_to, 'to_%s' % a_state))
-    // self.add_transition(method_name, self.WILDCARD_ALL, a_state)
-    //
-    // # add auto transition with source <state> to <a_state>
-    // else:
-    // if self.model_attribute == 'state':
-    // method_name = 'to_%s' % a_state
-    // else:
-    // method_name = 'to_%s_%s' % (self.model_attribute, a_state)
-    // self.add_transition('to_%s' % a_state, state.name, a_state,
-    // prepare=partial(_warning_wrapper_to, 'to_%s' % a_state))
-    // self.add_transition(method_name, state.name, a_state)
-    //
+    // Check whether the current state matches the named state. This function is not called directly
+    ///             but assigned as partials to model instances (e.g. is_A -> partial(_is_state, 'A', model)).
+    ///         Args:
+    ///             state (str): name of the checked state
+    ///             model: model to be checked
+    ///         Returns:
+    ///             bool: Whether the model's current state is state.
+    pub fn is_state(&self, state: &State, model: &Model) {
+        // return getattr(model, self.model_attribute) == state
+        todo!()
+    }
+
+    pub fn get_model_state(&self, model: &Model) {
+        // return self.get_state(getattr(model, self.model_attribute))
+        todo!()
+    }
+
+    ///             Set the current state.
+    ///         Args:
+    ///             state (str or Enum or State): value of state to be set
+    ///             model (optional[object]): targeted model; if not set, all models will be set to 'state'
+    pub fn set_state(&mut self, state: &State, model: Option<&Model> /*=None*/) {
+        // if not isinstance(state, State):
+        // state = self.get_state(state)
+        // models = self.models if model is None else listify(model)
+        //
+        // for mod in models:
+        // setattr(mod, self.model_attribute, state.value)
+        todo!()
+    }
+
+    /// Alias for add_states.
+    pub fn add_state(
+        &mut self,
+        states: Vec<&State>,
+        on_enter: Vec<TriggerFunction>,
+        on_exit: Vec<TriggerFunction>,
+        ignore_invalid_triggers: bool,
+        //**kwargs,
+    ) {
+        self.add_states(
+            states,
+            on_enter,
+            on_exit,
+            ignore_invalid_triggers,
+            // **kwargs
+        )
+    }
+
+    /// Add new state(s).
+    ///         Args:
+    ///             states (list, str, dict, Enum or State): a list, a State instance, the
+    ///                 name of a new state, an enumeration (member) or a dict with keywords to pass on to the
+    ///                 State initializer. If a list, each element can be a string, State or enumeration member.
+    ///             on_enter (str or list): callbacks to trigger when the state is
+    ///                 entered. Only valid if first argument is string.
+    ///             on_exit (str or list): callbacks to trigger when the state is
+    ///                 exited. Only valid if first argument is string.
+    ///             ignore_invalid_triggers: when True, any calls to trigger methods
+    ///                 that are not valid for the present state (e.g., calling an
+    ///                 a_to_b() trigger when the current state is c) will be silently
+    ///                 ignored rather than raising an invalid transition exception.
+    ///                 Note that this argument takes precedence over the same
+    ///                 argument defined at the Machine level, and is in turn
+    ///                 overridden by any ignore_invalid_triggers explicitly
+    ///                 passed in an individual state's initialization arguments.
+    ///             **kwargs additional keyword arguments used by state mixins.
+    pub fn add_states(
+        &mut self,
+        states: Vec<&State>,
+        on_enter: Vec<TriggerFunction>, /*=None*/
+        on_exit: Vec<TriggerFunction>,  /*=None*/
+        ignore_invalid_triggers: bool,  /*=None*/
+                                        //**kwargs,
+    ) {
+
+        // ignore = ignore_invalid_triggers
+        // if ignore is None:
+        // ignore = self.ignore_invalid_triggers
+
+        // states = listify(states)
+
+        // for state in states:
+        // if isinstance(state, (string_types, Enum)):
+        // state = self._create_state(
+        // state, on_enter=on_enter, on_exit=on_exit,
+        // ignore_invalid_triggers=ignore, **kwargs)
+        // elif isinstance(state, dict):
+        // if 'ignore_invalid_triggers' not in state:
+        // state['ignore_invalid_triggers'] = ignore
+        // state = self._create_state(**state)
+        // self.states[state.name] = state
+        // for model in self.models:
+        // self._add_model_to_state(state, model)
+        // if self.auto_transitions:
+        // for a_state in self.states.keys():
+        // # add all states as sources to auto transitions 'to_<state>' with dest <state>
+        // if a_state == state.name:
+        // if self.model_attribute == 'state':
+        // method_name = 'to_%s' % a_state
+        // else:
+        // method_name = 'to_%s_%s' % (self.model_attribute, a_state)
+        // self.add_transition('to_%s' % a_state, self.WILDCARD_ALL, a_state,
+        // prepare=partial(_warning_wrapper_to, 'to_%s' % a_state))
+        // self.add_transition(method_name, self.WILDCARD_ALL, a_state)
+
+        // # add auto transition with source <state> to <a_state>
+        // else:
+        // if self.model_attribute == 'state':
+        // method_name = 'to_%s' % a_state
+        // else:
+        // method_name = 'to_%s_%s' % (self.model_attribute, a_state)
+        // self.add_transition('to_%s' % a_state, state.name, a_state,
+        // prepare=partial(_warning_wrapper_to, 'to_%s' % a_state))
+        // self.add_transition(method_name, state.name, a_state)
+    }
+
     // def _add_model_to_state(self, state, model):
     // # Add convenience function 'is_<state_name>' (e.g. 'is_A') to the model.
     // # When model_attribute has been customized, add 'is_<model_attribute>_<state_name>' instead
@@ -665,11 +707,7 @@ impl Machine
     //          """""""" "
     // return all([getattr(model, trigger)(*args, **kwargs) for model in self.models])
     /// Triggers a list of callbacks
-    pub(crate) fn callbacks<F>(&self, funcs: &[F], event_data: &EventData)
-    //StateTrigger<>
-        where
-            F: Fn(&EventData),
-    {
+    pub(crate) fn callbacks(&self, funcs: &[&TriggerFunction], event_data: &EventData) {
         // for func in funcs:
         // self.callback(func, event_data)
         // _LOGGER.info("%sExecuted callback '%s'", self.name, func)
@@ -694,43 +732,14 @@ impl Machine
     // func(event_data)
     // else:
     // func(*event_data.args, **event_data.kwargs)
-    //
-    // @staticmethod
-    // def resolve_callable(func, event_data):
-    // """ Converts a model's property name, method name or a path to a callable into a callable.
-    //             If func is not a string it will be returned unaltered.
-    //         Args:
-    //             func (str or callable): Property name, method name or a path to a callable
-    //             event_data (EventData): Currently processed event
-    //         Returns:
-    //             callable function resolved from string or func
-    //         """
-    // if isinstance(func, string_types):
-    // try:
-    // func = getattr(event_data.model, func)
-    // if not callable(func):  # if a property or some other not callable attribute was passed
-    // def func_wrapper(*_, **__):  # properties cannot process parameters
-    // return func
-    // return func_wrapper
-    // except AttributeError:
-    // try:
-    // mod, name = func.rsplit('.', 1)
-    // m = __import__(mod)
-    // for n in mod.split('.')[1:]:
-    // m = getattr(m, n)
-    // func = getattr(m, name)
-    // except (ImportError, AttributeError, ValueError):
-    // raise AttributeError("Callable with name '%s' could neither be retrieved from the passed "
-    // "model nor imported from a module." % func)
-    // return func
-    //
+
     // def _has_state(self, state, raise_error=False):
     // found = state in self.states.values()
     // if not found and raise_error:
     // msg = 'State %s has not been added to the machine' % (state.name if hasattr(state, 'name') else state)
     // raise ValueError(msg)
     // return found
-    //
+
     // def _process(self, trigger):
     //
     // # default processing
@@ -805,6 +814,3 @@ impl Machine
     // raise AttributeError("'{}' does not exist on <Machine@{}>".format(name, id(self)))
     // "'{0}' instead.".format(meth_name), DeprecationWarning)
 }
-
-
-
