@@ -5,7 +5,8 @@ A Rust State Machine Library Modeled After PyTransitions
 \(Will update when it does.\)
 
 This is a dynamic state machine library for Rust, modeled after
-the **[pytransitions/transitions](https://github.com/pytransitions/transitions)**
+the
+**[pytransitions/transitions](https://github.com/pytransitions/transitions)**
 Python state machine package.
 
 There are many fine state machine crates for Rust, typically able

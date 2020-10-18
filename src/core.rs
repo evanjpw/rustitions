@@ -9,13 +9,13 @@ use strum_macros::{Display, EnumString, EnumVariantNames, IntoStaticStr};
 
 use log::{debug, info};
 
-use crate::error::Error;
+// use crate::error::Error;
 use crate::event::EventData;
 use crate::machine::getattr;
 use crate::Result;
 use append::Append;
 use std::borrow::Borrow;
-use std::iter::Chain;
+// use std::iter::Chain;
 
 pub struct TriggerFunction {
     function: Box<dyn Fn(&EventData)>,
@@ -23,6 +23,7 @@ pub struct TriggerFunction {
 }
 
 impl TriggerFunction {
+    #[allow(dead_code)]
     pub fn new<F>(f: F, name: Option<String>) -> Self
     where
         F: Fn(&EventData) + 'static,
@@ -31,6 +32,7 @@ impl TriggerFunction {
         TriggerFunction { function, name }
     }
 
+    #[allow(dead_code)]
     pub fn execute(&self, event_data: &EventData) {
         (self.function)(event_data)
     }
@@ -42,7 +44,8 @@ impl TriggerFunction {
     ///             event_data (EventData): Currently processed event
     ///         Returns:
     ///             callable function resolved from string or func
-    pub fn resolve_callable(self, event_data: &EventData) -> Self {
+    #[allow(dead_code)]
+    pub fn resolve_callable(self, _event_data: &EventData) -> Self {
         todo!()
     }
 
@@ -71,7 +74,9 @@ pub enum StateTriggerType {
 
 #[derive(Debug)]
 pub enum StateTrigger {
+    #[allow(dead_code)]
     EnterTrigger(TriggerFunction),
+    #[allow(dead_code)]
     ExitTrigger(TriggerFunction),
 }
 
@@ -158,7 +163,7 @@ impl State {
         }
     }
 
-    pub fn from_str(name: &str) -> Self {
+    pub fn from_str(_name: &str) -> Self {
         todo!()
     }
 
@@ -258,7 +263,7 @@ impl ConditionFunction {
     ///             event_data (EventData): Currently processed event
     ///         Returns:
     ///             callable function resolved from string or func
-    pub fn resolve_callable(&self, event_data: &EventData) -> Self {
+    pub fn resolve_callable(&self, _event_data: &EventData) -> Self {
         // if isinstance(func, string_types):
         // try:
         // func = getattr(event_data.model, func)
@@ -436,7 +441,9 @@ impl Transition {
     }
 
     fn eval_conditions(&mut self, event_data: &EventData) -> bool {
-        for mut cond in self.conditions.conditions.iter_mut() {
+        for
+        /*mut*/
+        cond in self.conditions.conditions.iter_mut() {
             if !cond.check(&event_data) {
                 debug!(
                     "{} Transition condition failed: {}() does not return {}. Transition halted.",
@@ -508,7 +515,8 @@ impl Transition {
 
     fn change_state(&mut self, event_data: &mut EventData) {
         //lf.
-        let dest_state = State::from_str(self.dest.as_ref().map(|s| s.borrow()).unwrap_or_else(|| ""));
+        let dest_state =
+            State::from_str(self.dest.as_ref().map(|s| s.borrow()).unwrap_or_else(|| ""));
         let source_state = State::from_str(&self.source);
         event_data.machine.get_state(&source_state).exit(event_data);
         event_data

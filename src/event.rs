@@ -40,7 +40,12 @@ impl<'a, 'b> EventData<'a, 'b> {
     ///                 to store internally for possible later use.
     ///             kwargs (dict): Optional keyword arguments from trigger method
     ///                 to store internally for possible later use.
-    pub fn new(state: &'a State, event: &'b Event, machine: &'a mut Machine, model: &'a Model) -> Self {
+    pub fn new(
+        state: &'a State,
+        event: &'b Event,
+        machine: &'a mut Machine,
+        model: &'a Model,
+    ) -> Self {
         //, args, kwargs
         // self.args = args
         // self.kwargs = kwargs
@@ -58,7 +63,7 @@ impl<'a, 'b> EventData<'a, 'b> {
     /// Updates the EventData object with the passed state.
     ///         Attributes:
     ///             state (State, str or Enum): The state object, enum member or string to assign to EventData.
-    pub fn update(&mut self, state: State) {
+    pub fn update(&mut self, _state: State) {
         // if not isinstance(state, State):
         // self.state = self.machine.get_state(state)
         todo!()
@@ -66,7 +71,7 @@ impl<'a, 'b> EventData<'a, 'b> {
 }
 
 impl Display for EventData<'_, '_> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+    fn fmt(&self, _f: &mut Formatter<'_>) -> FmtResult {
         unimplemented!()
     }
     // def __repr__(self):
@@ -97,7 +102,7 @@ impl<'a> Event<'a> {
     ///         Args:
     ///             transition (Transition): The Transition instance to add to the
     ///                 list.
-    pub fn add_transition(self, transition: Transition) {
+    pub fn add_transition(self, _transition: Transition) {
         // self.transitions[transition.source].append(transition)
     }
 
@@ -109,18 +114,18 @@ impl<'a> Event<'a> {
     ///                 information to be passed on to downstream triggered functions.
     ///         Returns: boolean indicating whether or not a transition was
     ///             successfully executed (True if successful, False if not).
-    pub fn trigger(&self, model: &Model) { // *args, **kwargs,
-                                           // func = partial(self._trigger, model, *args, **kwargs)
-                                           // # pylint: disable=protected-access
-                                           // # noinspection PyProtectedMember
-                                           // # Machine._process should not be called somewhere else. That's why it should not be exposed
-                                           // # to Machine users.
-                                           // return self.machine._process(func)
+    pub fn trigger(&self, _model: &Model) { // *args, **kwargs,
+                                            // func = partial(self._trigger, model, *args, **kwargs)
+                                            // # pylint: disable=protected-access
+                                            // # noinspection PyProtectedMember
+                                            // # Machine._process should not be called somewhere else. That's why it should not be exposed
+                                            // # to Machine users.
+                                            // return self.machine._process(func)
     }
 
     /// Internal trigger function called by the ``Machine`` instance. This should not
     ///         be called directly but via the public method ``Machine.trigger``.
-    pub fn machine_trigger(&self, model: Model) {
+    pub fn machine_trigger(&self, _model: Model) {
         // *args, **kwargs
         // state = self.machine.get_model_state(model)
         // if state.name not in self.transitions:
@@ -137,7 +142,7 @@ impl<'a> Event<'a> {
         // return self._process(event_data)
     }
 
-    pub fn _process(&self, event_data: &EventData) {
+    pub fn _process(&self, _event_data: &EventData) {
         // self.machine.callbacks(self.machine.prepare_event, event_data)
         // _LOGGER.debug("%sExecuted machine preparation callbacks before conditions.", self.machine.name)
 
@@ -162,7 +167,7 @@ impl<'a> Event<'a> {
     ///             trigger (str): The type of triggering event. Must be one of
     ///                 'before', 'after' or 'prepare'.
     ///             func (str): The name of the callback function.
-    pub fn add_callback(self, trigger: TransitionTriggerType, func: TriggerFunction) {
+    pub fn add_callback(self, _trigger: TransitionTriggerType, _func: TriggerFunction) {
         // for trans in itertools.chain(*self.transitions.values()):
         // trans.add_callback(trigger, func)
     }

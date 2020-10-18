@@ -6,7 +6,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 pub struct KeySet {}
 
 impl Display for KeySet {
-    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+    fn fmt(&self, _f: &mut Formatter<'_>) -> FmtResult {
         unimplemented!()
     }
 }

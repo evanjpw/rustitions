@@ -1,13 +1,13 @@
 //!
 
-use crate::core::{ConditionFunction, State, StateTrigger, TransitionParameters, TriggerFunction};
+use crate::core::{ConditionFunction, State, Transition, TransitionParameters, TriggerFunction}; //StateTrigger,ConditionFunction,
 use crate::event::EventData;
-use indexmap::IndexMap;
+// use indexmap::IndexMap;
 use log::info;
 
 pub(crate) type Model = Machine;
 
-pub fn getattr(model: &Model, attribute: &str) -> State {
+pub fn getattr(_model: &Model, _attribute: &str) -> State {
     todo!()
 }
 
@@ -111,20 +111,20 @@ impl Machine {
     ///             **kwargs additional arguments passed to next class in MRO. This can be ignored in most cases.
     /// model_attribute='state'???
     pub fn new(
-        model: Option<Model>,                                  /*=self*/
-        states: &[State],                                      //=None=None
-        initial: Option<State>,                                /*='initial'*/
-        transitions: &[TransitionParameters],                  /*=None*/
+        _model: Option<Model>,                                 /*=self*/
+        _states: &[State],                                     //=None=None
+        _initial: Option<State>,                               /*='initial'*/
+        _transitions: &[TransitionParameters],                 /*=None*/
         send_event: bool,                                      /*=False*/
         auto_transitions: bool,                                /*=True*/
-        ordered_transitions: bool,                             /*=False*/
+        _ordered_transitions: bool,                            /*=False*/
         ignore_invalid_triggers: bool,                         /*=None*/
         possible_before_state_change: Option<TriggerFunction>, /*=None*/
         possible_after_state_change: Option<TriggerFunction>,  /*=None*/
         name: Option<String>,                                  /*=None*/
         queued: bool,                                          /*=False*/
-        prepare_event: TriggerFunction,                        /*=None*/
-        finalize_event: TriggerFunction,
+        _prepare_event: TriggerFunction,                       /*=None*/
+        _finalize_event: TriggerFunction,
         model_attribute: Option<String>, /*='state'*/ /*,kwargs*/
     ) -> Self {
         // # calling super in case `Machine` is used as a mix in
@@ -190,55 +190,56 @@ impl Machine {
         }
     }
 
-    // def add_model(self, model, initial=None):
-    // """ Register a model with the state machine, initializing triggers and callbacks. """
-    // models = listify(model)
-    //
-    // if initial is None:
-    // if self.initial is None:
-    // raise ValueError("No initial state configured for machine, must specify when adding model.")
-    // else:
-    // initial = self.initial
-    //
-    // for mod in models:
-    // mod = self if mod == 'self' else mod
-    // if mod not in self.models:
-    // self._checked_assignment(mod, 'trigger', partial(self._get_trigger, mod))
-    //
-    // for trigger in self.events:
-    // self._add_trigger_to_model(trigger, mod)
-    //
-    // for state in self.states.values():
-    // self._add_model_to_state(state, mod)
-    //
-    // self.set_state(initial, model=mod)
-    // self.models.append(mod)
-    //
-    // def remove_model(self, model):
-    // """ Remove a model from the state machine. The model will still contain all previously added triggers
-    //         and callbacks, but will not receive updates when states or transitions are added to the Machine. """
-    // models = listify(model)
-    //
-    // for mod in models:
-    // self.models.remove(mod)
-    //
+    /// Register a model with the state machine, initializing triggers and callbacks. """
+    pub fn add_model(&mut self, _model: &Model, _initial: Option<State> /*=None*/) {
+        //models = listify(model)
+        // if initial is None:
+        // if self.initial is None:
+        // raise ValueError("No initial state configured for machine, must specify when adding model.")
+        // else:
+        // initial = self.initial
+        //
+        // for mod in models:
+        // mod = self if mod == 'self' else mod
+        // if mod not in self.models:
+        // self._checked_assignment(mod, 'trigger', partial(self._get_trigger, mod))
+        //
+        // for trigger in self.events:
+        // self._add_trigger_to_model(trigger, mod)
+        //
+        // for state in self.states.values():
+        // self._add_model_to_state(state, mod)
+        //
+        // self.set_state(initial, model=mod)
+        // self.models.append(mod)
+        todo!()
+    }
+    /// Remove a model from the state machine. The model will still contain all previously added triggers
+    ///         and callbacks, but will not receive updates when states or transitions are added to the Machine. """
+    pub fn remove_model(&mut self, _model: &Model) {
+        // models = listify(model)
+        // for mod in models:
+        // self.models.remove(mod)
+        todo!()
+    }
+
     // @classmethod
     // def _create_transition(cls, *args, **kwargs):
     // return cls.transition_cls(*args, **kwargs)
-    //
+
     // @classmethod
     // def _create_event(cls, *args, **kwargs):
     // return cls.event_cls(*args, **kwargs)
-    //
+
     // @classmethod
     // def _create_state(cls, *args, **kwargs):
     // return cls.state_cls(*args, **kwargs)
-    //
+
     // @property
     // def initial(self):
     // """ Return the initial state. """
     // return self._initial
-    //
+
     // @initial.setter
     // def initial(self, value):
     // if isinstance(value, State):
@@ -252,12 +253,12 @@ impl Machine {
     // if state_name not in self.states:
     // self.add_state(state_name)
     // self._initial = state_name
-    //
+
     // @property
     // def has_queue(self):
     // """ Return boolean indicating if machine has queue or not """
     // return self._queued
-    //
+
     // @property
     // def model(self):
     // """ List of models attached to the machine. For backwards compatibility, the property will
@@ -267,52 +268,52 @@ impl Machine {
     // if len(self.models) == 1:
     // return self.models[0]
     // return self.models
-    //
+
     // @property
     // def before_state_change(self):
     // """Callbacks executed after condition checks but before transition is conducted.
     //         Callbacks will be executed BEFORE the custom callbacks assigned to the transition."""
     // return self._before_state_change
-    //
+
     // # this should make sure that _before_state_change is always a list
     // @before_state_change.setter
     // def before_state_change(self, value):
     // self._before_state_change = listify(value)
-    //
+
     // @property
     // def after_state_change(self):
     // """Callbacks executed after the transition has been conducted.
     //         Callbacks will be executed AFTER the custom callbacks assigned to the transition."""
     // return self._after_state_change
-    //
+
     // # this should make sure that _after_state_change is always a list
     // @after_state_change.setter
     // def after_state_change(self, value):
     // self._after_state_change = listify(value)
-    //
+
     // @property
     // def prepare_event(self):
     // """Callbacks executed when an event is triggered."""
     // return self._prepare_event
-    //
+
     // # this should make sure that prepare_event is always a list
     // @prepare_event.setter
     // def prepare_event(self, value):
     // self._prepare_event = listify(value)
-    //
+
     // @property
     // def finalize_event(self):
     // """Callbacks will be executed after all transitions callbacks have been executed.
     //         Callbacks mentioned here will also be called if a transition or condition check raised an error."""
     // return self._finalize_event
-    //
+
     // # this should make sure that finalize_event is always a list
     // @finalize_event.setter
     // def finalize_event(self, value):
     // self._finalize_event = listify(value)
 
     /// Return the State instance with the passed name.
-    pub fn get_state(&self, state: &State) -> &State {
+    pub fn get_state(&self, _state: &State) -> &State {
         // if isinstance(state, Enum):
         // state = state.name
         // if state not in self.states:
@@ -330,12 +331,12 @@ impl Machine {
     ///             model: model to be checked
     ///         Returns:
     ///             bool: Whether the model's current state is state.
-    pub fn is_state(&self, state: &State, model: &Model) {
+    pub fn is_state(&self, _state: &State, _model: &Model) {
         // return getattr(model, self.model_attribute) == state
         todo!()
     }
 
-    pub fn get_model_state(&self, model: &Model) {
+    pub fn get_model_state(&self, _model: &Model) {
         // return self.get_state(getattr(model, self.model_attribute))
         todo!()
     }
@@ -344,7 +345,7 @@ impl Machine {
     ///         Args:
     ///             state (str or Enum or State): value of state to be set
     ///             model (optional[object]): targeted model; if not set, all models will be set to 'state'
-    pub fn set_state(&mut self, state: &State, model: Option<&Model> /*=None*/) {
+    pub fn set_state(&mut self, _state: &State, _model: Option<&Model> /*=None*/) {
         // if not isinstance(state, State):
         // state = self.get_state(state)
         // models = self.models if model is None else listify(model)
@@ -392,11 +393,11 @@ impl Machine {
     ///             **kwargs additional keyword arguments used by state mixins.
     pub fn add_states(
         &mut self,
-        states: Vec<&State>,
-        on_enter: Vec<TriggerFunction>, /*=None*/
-        on_exit: Vec<TriggerFunction>,  /*=None*/
-        ignore_invalid_triggers: bool,  /*=None*/
-                                        //**kwargs,
+        _states: Vec<&State>,
+        _on_enter: Vec<TriggerFunction>, /*=None*/
+        _on_exit: Vec<TriggerFunction>,  /*=None*/
+        _ignore_invalid_triggers: bool,  /*=None*/
+                                         //**kwargs,
     ) {
 
         // ignore = ignore_invalid_triggers
@@ -460,313 +461,356 @@ impl Machine {
     // if hasattr(model, method) and inspect.ismethod(getattr(model, method)) and \
     // method not in getattr(state, callback):
     // state.add_callback(callback[3:], method)
-    //
+
     // def _checked_assignment(self, model, name, func):
     // if hasattr(model, name):
     // _LOGGER.warning("%sModel already contains an attribute '%s'. Skip binding.", self.name, name)
     // else:
     // setattr(model, name, func)
-    //
+
     // def _add_trigger_to_model(self, trigger, model):
     // self._checked_assignment(model, trigger, partial(self.events[trigger].trigger, model))
     //
-    // def _get_trigger(self, model, trigger_name, *args, **kwargs):
-    // """Convenience function added to the model to trigger events by name.
-    //         Args:
-    //             model (object): Model with assigned event trigger.
-    //             machine (Machine): The machine containing the evaluated events.
-    //             trigger_name (str): Name of the trigger to be called.
-    //             *args: Variable length argument list which is passed to the triggered event.
-    //             **kwargs: Arbitrary keyword arguments which is passed to the triggered event.
-    //         Returns:
-    //             bool: True if a transitions has been conducted or the trigger event has been queued.
-    //         """
-    // try:
-    // event = self.events[trigger_name]
-    // except KeyError:
-    // state = self.get_model_state(model)
-    // ignore = state.ignore_invalid_triggers if state.ignore_invalid_triggers is not None \
-    // else self.ignore_invalid_triggers
-    // if not ignore:
-    // raise AttributeError("Do not know event named '%s'." % trigger_name)
-    // return False
-    // return event.trigger(model, *args, **kwargs)
-    //
-    // def get_triggers(self, *args):
-    // """ Collects all triggers FROM certain states.
-    //         Args:
-    //             *args: Tuple of source states.
-    //         Returns:
-    //             list of transition/trigger names.
-    //         """
-    // states = set(args)
-    // return [t for (t, ev) in self.events.items() if any(state in ev.transitions for state in states)]
-    //
-    // def add_transition(self, trigger, source, dest, conditions=None,
-    // unless=None, before=None, after=None, prepare=None, **kwargs):
-    // """ Create a new Transition instance and add it to the internal list.
-    //         Args:
-    //             trigger (str): The name of the method that will trigger the
-    //                 transition. This will be attached to the currently specified
-    //                 model (e.g., passing trigger='advance' will create a new
-    //                 advance() method in the model that triggers the transition.)
-    //             source(str or list): The name of the source state--i.e., the state we
-    //                 are transitioning away from. This can be a single state, a
-    //                 list of states or an asterisk for all states.
-    //             dest (str): The name of the destination State--i.e., the state
-    //                 we are transitioning into. This can be a single state or an
-    //                 equal sign to specify that the transition should be reflexive
-    //                 so that the destination will be the same as the source for
-    //                 every given source. If dest is None, this transition will be
-    //                 an internal transition (exit/enter callbacks won't be processed).
-    //             conditions (str or list): Condition(s) that must pass in order
-    //                 for the transition to take place. Either a list providing the
-    //                 name of a callable, or a list of callables. For the transition
-    //                 to occur, ALL callables must return True.
-    //             unless (str or list): Condition(s) that must return False in order
-    //                 for the transition to occur. Behaves just like conditions arg
-    //                 otherwise.
-    //             before (str or list): Callables to call before the transition.
-    //             after (str or list): Callables to call after the transition.
-    //             prepare (str or list): Callables to call when the trigger is activated
-    //             **kwargs: Additional arguments which can be passed to the created transition.
-    //                 This is useful if you plan to extend Machine.Transition and require more parameters.
-    //         """
-    // if trigger == self.model_attribute:
-    // raise ValueError("Trigger name cannot be same as model attribute name.")
-    // if trigger not in self.events:
-    // self.events[trigger] = self._create_event(trigger, self)
-    // for model in self.models:
-    // self._add_trigger_to_model(trigger, model)
-    //
-    // if source == self.WILDCARD_ALL:
-    // source = list(self.states.keys())
-    // else:
-    // # states are checked lazily which means we will only raise exceptions when the passed state
-    // # is a State object because of potential confusion (see issue #155 for more details)
-    // source = [s.name if isinstance(s, State) and self._has_state(s, raise_error=True) or hasattr(s, 'name') else
-    // s for s in listify(source)]
-    //
-    // for state in source:
-    // if dest == self.WILDCARD_SAME:
-    // _dest = state
-    // elif dest is not None:
-    // if isinstance(dest, State):
-    // _ = self._has_state(dest, raise_error=True)
-    // _dest = dest.name if hasattr(dest, 'name') else dest
-    // else:
-    // _dest = None
-    // _trans = self._create_transition(state, _dest, conditions, unless, before,
-    // after, prepare, **kwargs)
-    // self.events[trigger].add_transition(_trans)
-    //
-    // def add_transitions(self, transitions):
-    // """ Add several transitions.
-    //         Args:
-    //             transitions (list): A list of transitions.
-    //         """
-    // for trans in listify(transitions):
-    // if isinstance(trans, list):
-    // self.add_transition(*trans)
-    // else:
-    // self.add_transition(**trans)
-    //
-    // def add_ordered_transitions(self, states=None, trigger='next_state',
-    // loop=True, loop_includes_initial=True,
-    // conditions=None, unless=None, before=None,
-    // after=None, prepare=None, **kwargs):
-    // """ Add a set of transitions that move linearly from state to state.
-    //         Args:
-    //             states (list): A list of state names defining the order of the
-    //                 transitions. E.g., ['A', 'B', 'C'] will generate transitions
-    //                 for A --> B, B --> C, and C --> A (if loop is True). If states
-    //                 is None, all states in the current instance will be used.
-    //             trigger (str): The name of the trigger method that advances to
-    //                 the next state in the sequence.
-    //             loop (boolean): Whether or not to add a transition from the last
-    //                 state to the first state.
-    //             loop_includes_initial (boolean): If no initial state was defined in
-    //                 the machine, setting this to True will cause the _initial state
-    //                 placeholder to be included in the added transitions. This argument
-    //                 has no effect if the states argument is passed without the
-    //                 initial state included.
-    //             conditions (str or list): Condition(s) that must pass in order
-    //                 for the transition to take place. Either a list providing the
-    //                 name of a callable, or a list of callables. For the transition
-    //                 to occur, ALL callables must return True.
-    //             unless (str or list): Condition(s) that must return False in order
-    //                 for the transition to occur. Behaves just like conditions arg
-    //                 otherwise.
-    //             before (str or list): Callables to call before the transition.
-    //             after (str or list): Callables to call after the transition.
-    //             prepare (str or list): Callables to call when the trigger is activated
-    //             **kwargs: Additional arguments which can be passed to the created transition.
-    //                 This is useful if you plan to extend Machine.Transition and require more parameters.
-    //         """
-    // if states is None:
-    // states = list(self.states.keys())  # need to listify for Python3
-    // len_transitions = len(states)
-    // if len_transitions < 2:
-    // raise ValueError("Can't create ordered transitions on a Machine "
-    // "with fewer than 2 states.")
-    // if not loop:
-    // len_transitions -= 1
-    // # ensure all args are the proper length
-    // conditions = _prep_ordered_arg(len_transitions, conditions)
-    // unless = _prep_ordered_arg(len_transitions, unless)
-    // before = _prep_ordered_arg(len_transitions, before)
-    // after = _prep_ordered_arg(len_transitions, after)
-    // prepare = _prep_ordered_arg(len_transitions, prepare)
-    // # reorder list so that the initial state is actually the first one
-    // try:
-    // idx = states.index(self._initial)
-    // states = states[idx:] + states[:idx]
-    // first_in_loop = states[0 if loop_includes_initial else 1]
-    // except ValueError:
-    // # since initial is not part of states it shouldn't be part of the loop either
-    // first_in_loop = states[0]
-    //
-    // for i in range(0, len(states) - 1):
-    // self.add_transition(trigger, states[i], states[i + 1],
-    // conditions=conditions[i],
-    // unless=unless[i],
-    // before=before[i],
-    // after=after[i],
-    // prepare=prepare[i],
-    // **kwargs)
-    // if loop:
-    // self.add_transition(trigger, states[-1],
-    // # omit initial if not loop_includes_initial
-    // first_in_loop,
-    // conditions=conditions[-1],
-    // unless=unless[-1],
-    // before=before[-1],
-    // after=after[-1],
-    // prepare=prepare[-1],
-    // **kwargs)
-    //
-    // def get_transitions(self, trigger="", source="*", dest="*"):
-    // """ Return the transitions from the Machine.
-    //         Args:
-    //             trigger (str): Trigger name of the transition.
-    //             source (str): Limits list to transitions from a certain state.
-    //             dest (str): Limits list to transitions to a certain state.
-    //         """
-    // if trigger:
-    // try:
-    // events = (self.events[trigger], )
-    // except KeyError:
-    // return []
-    // else:
-    // events = self.events.values()
-    // transitions = []
-    // for event in events:
-    // transitions.extend(
-    // itertools.chain.from_iterable(event.transitions.values()))
-    // return [transition
-    // for transition in transitions
-    // if (transition.source, transition.dest) == (
-    // source if source != "*" else transition.source,
-    // dest if dest != "*" else transition.dest)]
-    //
-    // def remove_transition(self, trigger, source="*", dest="*"):
-    // """ Removes a transition from the Machine and all models.
-    //         Args:
-    //             trigger (str): Trigger name of the transition.
-    //             source (str): Limits removal to transitions from a certain state.
-    //             dest (str): Limits removal to transitions to a certain state.
-    //         """
-    // source = listify(source) if source != "*" else source
-    // dest = listify(dest) if dest != "*" else dest
-    // # outer comprehension, keeps events if inner comprehension returns lists with length > 0
-    // tmp = {key: value for key, value in
-    // {k: [t for t in v
-    // # keep entries if source should not be filtered; same for dest.
-    // if (source != "*" and t.source not in source) or (dest != "*" and t.dest not in dest)]
-    // # }.items() takes the result of the inner comprehension and uses it
-    // # for the outer comprehension (see first line of comment)
-    // for k, v in self.events[trigger].transitions.items()}.items()
-    // if len(value) > 0}
-    // # convert dict back to defaultdict in case tmp is not empty
-    // if tmp:
-    // self.events[trigger].transitions = defaultdict(list, **tmp)
-    // # if no transition is left remove the trigger from the machine and all models
-    // else:
-    // for model in self.models:
-    // delattr(model, trigger)
-    // del self.events[trigger]
-    //
-    // def dispatch(self, trigger, *args, **kwargs):
-    // """ Trigger an event on all models assigned to the machine.
-    //         Args:
-    //             trigger (str): Event name
-    //             *args (list): List of arguments passed to the event trigger
-    //             **kwargs (dict): Dictionary of keyword arguments passed to the event trigger
-    //         Returns:
-    //             bool The truth value of all triggers combined with AND
-    //          """""""" "
-    // return all([getattr(model, trigger)(*args, **kwargs) for model in self.models])
-    /// Triggers a list of callbacks
-    pub(crate) fn callbacks(&self, funcs: &[&TriggerFunction], event_data: &EventData) {
-        // for func in funcs:
-        // self.callback(func, event_data)
-        // _LOGGER.info("%sExecuted callback '%s'", self.name, func)
+    /// Convenience function added to the model to trigger events by name.
+    ///         Args:
+    ///             model (object): Model with assigned event trigger.
+    ///             machine (Machine): The machine containing the evaluated events.
+    ///             trigger_name (str): Name of the trigger to be called.
+    ///             *args: Variable length argument list which is passed to the triggered event.
+    ///             **kwargs: Arbitrary keyword arguments which is passed to the triggered event.
+    ///         Returns:
+    ///             bool: True if a transitions has been conducted or the trigger event has been queued.
+    fn _get_trigger(&self, model: &Model, trigger_name: &str) {
+        //, *args, **kwargs
+        // try:
+        // event = self.events[trigger_name]
+        // except KeyError:
+        // state = self.get_model_state(model)
+        // ignore = state.ignore_invalid_triggers if state.ignore_invalid_triggers is not None \
+        // else self.ignore_invalid_triggers
+        // if not ignore:
+        // raise AttributeError("Do not know event named '%s'." % trigger_name)
+        // return False
+        // return event.trigger(model, *args, **kwargs)
+        todo!()
     }
 
-    // def callback(self, func, event_data):
-    // """ Trigger a callback function with passed event_data parameters. In case func is a string,
-    //             the callable will be resolved from the passed model in event_data. This function is not intended to
-    //             be called directly but through state and transition callback definitions.
-    //         Args:
-    //             func (str or callable): The callback function.
-    //                 1. First, if the func is callable, just call it
-    //                 2. Second, we try to import string assuming it is a path to a func
-    //                 3. Fallback to a model attribute
-    //             event_data (EventData): An EventData instance to pass to the
-    //                 callback (if event sending is enabled) or to extract arguments
-    //                 from (if event sending is disabled).
-    //         """
-    //
-    // func = self.resolve_callable(func, event_data)
-    // if self.send_event:
-    // func(event_data)
-    // else:
-    // func(*event_data.args, **event_data.kwargs)
+    /// Collects all triggers FROM certain states.
+    ///         Args:
+    ///             *args: Tuple of source states.
+    ///         Returns:
+    ///             list of transition/trigger names.
+    pub fn get_triggers(&self) {
+        //, *args
+        // states = set(args)
+        // return [t for (t, ev) in self.events.items() if any(state in ev.transitions for state in states)]
+        todo!()
+    }
 
-    // def _has_state(self, state, raise_error=False):
-    // found = state in self.states.values()
-    // if not found and raise_error:
-    // msg = 'State %s has not been added to the machine' % (state.name if hasattr(state, 'name') else state)
-    // raise ValueError(msg)
-    // return found
+    /// Create a new Transition instance and add it to the internal list.
+    ///         Args:
+    ///             trigger (str): The name of the method that will trigger the
+    ///                 transition. This will be attached to the currently specified
+    ///                 model (e.g., passing trigger='advance' will create a new
+    ///                 advance() method in the model that triggers the transition.)
+    ///             source(str or list): The name of the source state--i.e., the state we
+    ///                 are transitioning away from. This can be a single state, a
+    ///                 list of states or an asterisk for all states.
+    ///             dest (str): The name of the destination State--i.e., the state
+    ///                 we are transitioning into. This can be a single state or an
+    ///                 equal sign to specify that the transition should be reflexive
+    ///                 so that the destination will be the same as the source for
+    ///                 every given source. If dest is None, this transition will be
+    ///                 an internal transition (exit/enter callbacks won't be processed).
+    ///             conditions (str or list): Condition(s) that must pass in order
+    ///                 for the transition to take place. Either a list providing the
+    ///                 name of a callable, or a list of callables. For the transition
+    ///                 to occur, ALL callables must return True.
+    ///             unless (str or list): Condition(s) that must return False in order
+    ///                 for the transition to occur. Behaves just like conditions arg
+    ///                 otherwise.
+    ///             before (str or list): Callables to call before the transition.
+    ///             after (str or list): Callables to call after the transition.
+    ///             prepare (str or list): Callables to call when the trigger is activated
+    ///             **kwargs: Additional arguments which can be passed to the created transition.
+    ///                 This is useful if you plan to extend Machine.Transition and require more parameters.
+    pub fn add_transition(
+        &mut self,
+        trigger: TriggerFunction,
+        source: &[&str],
+        dest: &str,
+        conditions: &[ConditionFunction], /*=None*/
+        unless: &[&ConditionFunction],    /*=None*/
+        before: &[&TriggerFunction],      /*None*/
+        after: &[&TriggerFunction],       /*=None*/
+        prepare: &[&TriggerFunction],     /*=None*/
+    ) {
+        //, **kwargs
+        // if trigger == self.model_attribute:
+        // raise ValueError("Trigger name cannot be same as model attribute name.")
+        // if trigger not in self.events:
+        // self.events[trigger] = self._create_event(trigger, self)
+        // for model in self.models:
+        // self._add_trigger_to_model(trigger, model)
+        //
+        // if source == self.WILDCARD_ALL:
+        // source = list(self.states.keys())
+        // else:
+        // # states are checked lazily which means we will only raise exceptions when the passed state
+        // # is a State object because of potential confusion (see issue #155 for more details)
+        // source = [s.name if isinstance(s, State) and self._has_state(s, raise_error=True) or hasattr(s, 'name') else
+        // s for s in listify(source)]
+        //
+        // for state in source:
+        // if dest == self.WILDCARD_SAME:
+        // _dest = state
+        // elif dest is not None:
+        // if isinstance(dest, State):
+        // _ = self._has_state(dest, raise_error=True)
+        // _dest = dest.name if hasattr(dest, 'name') else dest
+        // else:
+        // _dest = None
+        // _trans = self._create_transition(state, _dest, conditions, unless, before,
+        // after, prepare, **kwargs)
+        // self.events[trigger].add_transition(_trans)
+        todo!()
+    }
 
-    // def _process(self, trigger):
-    //
-    // # default processing
-    // if not self.has_queue:
-    // if not self._transition_queue:
-    // # if trigger raises an Error, it has to be handled by the Machine.process caller
-    // return trigger()
-    // else:
-    // raise MachineError("Attempt to process events synchronously while transition queue is not empty!")
-    //
-    // # process queued events
-    // self._transition_queue.append(trigger)
-    // # another entry in the queue implies a running transition; skip immediate execution
-    // if len(self._transition_queue) > 1:
-    // return True
-    //
-    // # execute as long as transition queue is not empty
-    // while self._transition_queue:
-    // try:
-    // self._transition_queue[0]()
-    // self._transition_queue.popleft()
-    // except Exception:
-    // # if a transition raises an exception, clear queue and delegate exception handling
-    // self._transition_queue.clear()
-    // raise
-    // return True
-    //
+    /// Add several transitions.
+    ///         Args:
+    ///             transitions (list): A list of transitions.
+    pub fn add_transitions(&mut self, transitions: &[&Transition]) { //Function
+                                                                     // for trans in listify(transitions):
+                                                                     // if isinstance(trans, list):
+                                                                     // self.add_transition(*trans)
+                                                                     // else:
+                                                                     // self.add_transition(**trans)
+    }
+
+    /// Add a set of transitions that move linearly from state to state.
+    ///         Args:
+    ///             states (list): A list of state names defining the order of the
+    ///                 transitions. E.g., ['A', 'B', 'C'] will generate transitions
+    ///                 for A --> B, B --> C, and C --> A (if loop is True). If states
+    ///                 is None, all states in the current instance will be used.
+    ///             trigger (str): The name of the trigger method that advances to
+    ///                 the next state in the sequence.
+    ///             loop (boolean): Whether or not to add a transition from the last
+    ///                 state to the first state.
+    ///             loop_includes_initial (boolean): If no initial state was defined in
+    ///                 the machine, setting this to True will cause the _initial state
+    ///                 placeholder to be included in the added transitions. This argument
+    ///                 has no effect if the states argument is passed without the
+    ///                 initial state included.
+    ///             conditions (str or list): Condition(s) that must pass in order
+    ///                 for the transition to take place. Either a list providing the
+    ///                 name of a callable, or a list of callables. For the transition
+    ///                 to occur, ALL callables must return True.
+    ///             unless (str or list): Condition(s) that must return False in order
+    ///                 for the transition to occur. Behaves just like conditions arg
+    ///                 otherwise.
+    ///             before (str or list): Callables to call before the transition.
+    ///             after (str or list): Callables to call after the transition.
+    ///             prepare (str or list): Callables to call when the trigger is activated
+    ///             **kwargs: Additional arguments which can be passed to the created transition.
+    ///                 This is useful if you plan to extend Machine.Transition and require more parameters.
+    pub fn add_ordered_transitions(
+        self,
+        states: &[&str],                  /*=None*/
+        trigger: Option<&str>,            /*='next_state'*/
+        transition_loop: bool,            /*=True*/
+        loop_includes_initial: bool,      /*=True*/
+        conditions: &[ConditionFunction], /*=None*/
+        unless: &[&ConditionFunction],    /*=None*/
+        before: &[&TriggerFunction],      /*=None*/
+        after: &[&TriggerFunction],       /*=None*/
+        prepare: &[&TriggerFunction],     /*=None*/
+    ) {
+        //, **kwargs
+        // if states is None:
+        //     states = list(self.states.keys())  # need to listify for Python3
+        // len_transitions = len(states)
+        // if len_transitions < 2:
+        //     raise ValueError("Can't create ordered transitions on a Machine "
+        // "with fewer than 2 states.")
+        // if not transition_loop:
+        //     len_transitions -= 1
+        // # ensure all args are the proper length
+        // conditions = _prep_ordered_arg(len_transitions, conditions)
+        // unless = _prep_ordered_arg(len_transitions, unless)
+        // before = _prep_ordered_arg(len_transitions, before)
+        // after = _prep_ordered_arg(len_transitions, after)
+        // prepare = _prep_ordered_arg(len_transitions, prepare)
+        // # reorder list so that the initial state is actually the first one
+        // try:
+        //     idx = states.index(self._initial)
+        // states = states[idx:] + states[:idx]
+        // first_in_loop = states[0 if loop_includes_initial else 1]
+        // except ValueError:
+        // # since initial is not part of states it shouldn't be part of the loop either
+        // first_in_loop = states[0]
+        //
+        // for i in range(0, len(states) - 1):
+        //     self.add_transition(trigger, states[i], states[i + 1],
+        //                         conditions=conditions[i],
+        //                         unless=unless[i],
+        //                         before=before[i],
+        //                         after=after[i],
+        //                         prepare=prepare[i],
+        //                         **kwargs)
+        // if loop:
+        //     self.add_transition(trigger, states[-1],
+        // # omit initial if not loop_includes_initial
+        // first_in_loop,
+        // conditions=conditions[-1],
+        // unless=unless[-1],
+        // before=before[-1],
+        // after=after[-1],
+        // prepare=prepare[-1],
+        // **kwargs)
+        todo!()
+    }
+
+    /// Return the transitions from the Machine.
+    ///         Args:
+    ///             trigger (str): Trigger name of the transition.
+    ///             source (str): Limits list to transitions from a certain state.
+    ///             dest (str): Limits list to transitions to a certain state.
+    pub fn get_transitions(
+        self,
+        trigger: Option<&str>, /*=""*/
+        source: Option<&str>,  /*="*"*/
+        dest: Option<&str>,    /*="*"*/
+    ) {
+        // if trigger:
+        // try:
+        // events = (self.events[trigger], )
+        // except KeyError:
+        // return []
+        // else:
+        // events = self.events.values()
+        // transitions = []
+        // for event in events:
+        // transitions.extend(
+        // itertools.chain.from_iterable(event.transitions.values()))
+        // return [transition
+        // for transition in transitions
+        // if (transition.source, transition.dest) == (
+        // source if source != "*" else transition.source,
+        // dest if dest != "*" else transition.dest)]
+        todo!()
+    }
+
+    /// Removes a transition from the Machine and all models.
+    ///         Args:
+    ///             trigger (str): Trigger name of the transition.
+    ///             source (str): Limits removal to transitions from a certain state.
+    ///             dest (str): Limits removal to transitions to a certain state.
+    pub fn remove_transition(
+        self,
+        trigger: &str,
+        source: Option<&str>, /*="*"*/
+        dest: Option<&str>,   /*="*"*/
+    ) {
+        // source = listify(source) if source != "*" else source
+        // dest = listify(dest) if dest != "*" else dest
+        // # outer comprehension, keeps events if inner comprehension returns lists with length > 0
+        // tmp = {key: value for key, value in
+        // {k: [t for t in v
+        // # keep entries if source should not be filtered; same for dest.
+        // if (source != "*" and t.source not in source) or (dest != "*" and t.dest not in dest)]
+        // # }.items() takes the result of the inner comprehension and uses it
+        // # for the outer comprehension (see first line of comment)
+        // for k, v in self.events[trigger].transitions.items()}.items()
+        // if len(value) > 0}
+        // # convert dict back to defaultdict in case tmp is not empty
+        // if tmp:
+        // self.events[trigger].transitions = defaultdict(list, **tmp)
+        // # if no transition is left remove the trigger from the machine and all models
+        // else:
+        // for model in self.models:
+        // delattr(model, trigger)
+        // del self.events[trigger]
+        todo!()
+    }
+
+    /// Trigger an event on all models assigned to the machine.
+    ///         Args:
+    ///             trigger (str): Event name
+    ///             *args (list): List of arguments passed to the event trigger
+    ///             **kwargs (dict): Dictionary of keyword arguments passed to the event trigger
+    ///         Returns:
+    ///             bool The truth value of all triggers combined with AND
+    pub fn dispatch(self, trigger: TriggerFunction) {
+        //, *args, **kwargs
+        // return all([getattr(model, trigger)(*args, **kwargs) for model in self.models])
+        todo!()
+    }
+
+    /// Triggers a list of callbacks
+    pub(crate) fn callbacks(&self, funcs: &[&TriggerFunction], event_data: &EventData) {
+        for func in funcs {
+            self.callback(func, event_data);
+            info!("{}: Executed callback '{}'", self.name, func);
+        }
+    }
+
+    /// Trigger a callback function with passed event_data parameters. In case func is a string,
+    ///             the callable will be resolved from the passed model in event_data. This function is not intended to
+    ///             be called directly but through state and transition callback definitions.
+    ///         Args:
+    ///             func (str or callable): The callback function.
+    ///                 1. First, if the func is callable, just call it
+    ///                 2. Second, we try to import string assuming it is a path to a func
+    ///                 3. Fallback to a model attribute
+    ///             event_data (EventData): An EventData instance to pass to the
+    ///                 callback (if event sending is enabled) or to extract arguments
+    ///                 from (if event sending is disabled).
+    pub fn callback(&self, func: &TriggerFunction, event_data: &EventData) {
+        // func = self.resolve_callable(func, event_data)
+        // if self.send_event:
+        // func(event_data)
+        // else:
+        // func(*event_data.args, **event_data.kwargs)
+        todo!()
+    }
+    fn _has_state(self, state: &State, raise_error: bool /*=False*/) {
+        // found = state in self.states.values()
+        // if not found and raise_error:
+        // msg = 'State %s has not been added to the machine' % (state.name if hasattr(state, 'name') else state)
+        // raise ValueError(msg)
+        // return found
+        todo!()
+    }
+
+    fn _process(&self, _trigger: TriggerFunction) {
+        // # default processing
+        // if not self.has_queue:
+        // if not self._transition_queue:
+        // # if trigger raises an Error, it has to be handled by the Machine.process caller
+        // return trigger()
+        // else:
+        // raise MachineError("Attempt to process events synchronously while transition queue is not empty!")
+        //
+        // # process queued events
+        // self._transition_queue.append(trigger)
+        // # another entry in the queue implies a running transition; skip immediate execution
+        // if len(self._transition_queue) > 1:
+        // return True
+        //
+        // # execute as long as transition queue is not empty
+        // while self._transition_queue:
+        // try:
+        // self._transition_queue[0]()
+        // self._transition_queue.popleft()
+        // except Exception:
+        // # if a transition raises an exception, clear queue and delegate exception handling
+        // self._transition_queue.clear()
+        // raise
+        // return True
+        todo!()
+    }
+
     // @classmethod
     // def _identify_callback(cls, name):
     // # Does the prefix match a known callback?
