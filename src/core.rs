@@ -82,6 +82,7 @@ pub enum StateTrigger {
 
 impl StateTrigger {
     //         Must be one of                 'enter' or 'exit'.
+    #[allow(dead_code)]
     pub fn from_func_and_type_name(
         trigger: StateTriggerType,
         func: TriggerFunction,
@@ -92,6 +93,7 @@ impl StateTrigger {
         }
     }
 
+    #[allow(dead_code)]
     pub fn execute(&self, event_data: &EventData) {
         match self {
             StateTrigger::EnterTrigger(e) => e.execute(event_data),
@@ -99,6 +101,7 @@ impl StateTrigger {
         }
     }
 
+    #[allow(dead_code)]
     pub fn callback(&self) -> &TriggerFunction {
         match self {
             StateTrigger::EnterTrigger(e) => e,
@@ -135,6 +138,7 @@ pub struct State {
 ///             ignore_invalid_triggers (Boolean): Optional flag to indicate if
 ///                 unhandled/invalid triggers should raise an exception
 impl State {
+    #[allow(dead_code)]
     pub fn new(
         name: String,
         on_enter_fns: Option<Vec<TriggerFunction>>,
@@ -163,14 +167,17 @@ impl State {
         }
     }
 
+    #[allow(dead_code)]
     pub fn from_str(_name: &str) -> Self {
         todo!()
     }
 
+    #[allow(dead_code)]
     pub fn name(self) -> String {
         self.name.clone()
     }
 
+    #[allow(dead_code)]
     pub fn value(&self) -> String {
         self.name.clone()
     }
@@ -179,6 +186,7 @@ impl State {
     // """ _LOGGER.%s%s """/ def// _LOGGER.%s%s// _LOGGER.%s%s&()mut mut &()
 
     /// Triggered when a state is entered.
+    #[allow(dead_code)]
     pub fn enter(&self, event_data: &EventData) {
         debug!(
             "{}: Entering state {}. Processing callbacks...",
@@ -198,6 +206,7 @@ impl State {
     }
 
     /// Triggered when a state is exited.
+    #[allow(dead_code)]
     pub fn exit(&self, event_data: &EventData) {
         debug!(
             "{}: Exiting state {}. Processing callbacks...",
@@ -218,6 +227,7 @@ impl State {
     /// Add a new enter or exit callback.
     ///         Args:
     ///             trigger_func (str): The triggering event callback function.
+    #[allow(dead_code)]
     pub fn add_callback(&mut self, trigger_func: StateTrigger) {
         match trigger_func {
             StateTrigger::EnterTrigger(_) => self.on_enter.push(trigger_func),
@@ -244,6 +254,7 @@ pub struct ConditionFunction {
 }
 
 impl ConditionFunction {
+    #[allow(dead_code)]
     pub fn new<F>(f: F, name: Option<String>) -> Self
     where
         F: Fn(&EventData) -> bool + 'static,
@@ -321,6 +332,7 @@ impl Condition {
     ///             Transition instance, and exists at module level (rather than
     ///             nesting under the transition class) only because of a bug in
     ///             dill that prevents serialization under Python 2.7.
+    #[allow(dead_code)]
     fn new(func: ConditionFunction, target: bool) -> Self {
         Condition { func, target }
     }
@@ -332,6 +344,7 @@ impl Condition {
     ///                 from (if event sending is disabled). Also contains the data
     ///                 model attached to the current machine which is used to invoke
     ///                 the condition.
+    #[allow(dead_code)]
     pub fn check(&mut self, event_data: &EventData) -> bool {
         let predicate = &self.func.resolve_callable(event_data);
         if event_data.machine.send_event {
@@ -399,6 +412,7 @@ pub struct Transition {
 }
 
 ///  A list of dynamic methods which can be resolved by a ``Machine`` instance for convenience functions.&''''''""""""
+#[allow(dead_code)]
 const DYNAMIC_METHODS: &[&'static str] = TransitionTriggerType::VARIANTS;
 
 //  The class used to wrap condition checks. Can be replaced to alter condition resolution behaviour
@@ -420,6 +434,7 @@ impl Transition {
     ///                 transition.
     ///             after (optional\[str, callable or list\]): callbacks to trigger after the transition.
     ///             prepare (optional\[str, callable or list]\): callbacks to trigger before conditions are checked
+    #[allow(dead_code)]
     pub fn new(
         source: String,
         dest: Option<String>,
@@ -440,6 +455,7 @@ impl Transition {
         }
     }
 
+    #[allow(dead_code)]
     fn eval_conditions(&mut self, event_data: &EventData) -> bool {
         for
         /*mut*/
@@ -460,6 +476,7 @@ impl Transition {
     ///             event_data: An instance of class EventData.
     ///         Returns: boolean indicating whether or not the transition was
     ///             successfully executed (True if successful, False if not).&iter().map(|f| f).collect()
+    #[allow(dead_code)]
     pub fn execute(&mut self, event_data: &mut EventData) -> bool {
         debug!(
             "{}: Initiating transition from state {} to state ...{:?}",
@@ -513,6 +530,7 @@ impl Transition {
         return true;
     }
 
+    #[allow(dead_code)]
     fn change_state(&mut self, event_data: &mut EventData) {
         //lf.
         let dest_state =
@@ -534,6 +552,7 @@ impl Transition {
     ///             trigger (str): The type of triggering event. Must be one of
     ///                 'before', 'after' or 'prepare'.
     ///             func (str): The name of the callback function.
+    #[allow(dead_code)]
     pub fn add_callback(&mut self, trigger: TransitionTriggerType, func: TriggerFunction) {
         // callback_list = getattr(self, trigger)
         match trigger {

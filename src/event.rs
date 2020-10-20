@@ -18,6 +18,7 @@ use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 ///         transition (Transition): Currently active transition. Will be assigned during triggering.
 ///         error (Error): In case a triggered event causes an Error, it is assigned here and passed on.
 ///         result (bool): True in case a transition has been successful, False otherwise.
+#[allow(dead_code)]
 pub struct EventData<'a, 'b: 'a> {
     state: &'a State,
     event: &'a Event<'b>,
@@ -40,6 +41,7 @@ impl<'a, 'b> EventData<'a, 'b> {
     ///                 to store internally for possible later use.
     ///             kwargs (dict): Optional keyword arguments from trigger method
     ///                 to store internally for possible later use.
+    #[allow(dead_code)]
     pub fn new(
         state: &'a State,
         event: &'b Event,
@@ -93,6 +95,7 @@ impl<'a> Event<'a> {
     ///                 triggering callable (e.g., 'advance' implies an advance()
     ///                 method).
     ///             machine (Machine): The current Machine instance.
+    #[allow(dead_code)]
     pub fn new(name: String, machine: &'a Machine) -> Self {
         Event { name, machine }
         // self.transitions = defaultdict(list)
@@ -102,6 +105,7 @@ impl<'a> Event<'a> {
     ///         Args:
     ///             transition (Transition): The Transition instance to add to the
     ///                 list.
+    #[allow(dead_code)]
     pub fn add_transition(self, _transition: Transition) {
         // self.transitions[transition.source].append(transition)
     }
@@ -114,6 +118,7 @@ impl<'a> Event<'a> {
     ///                 information to be passed on to downstream triggered functions.
     ///         Returns: boolean indicating whether or not a transition was
     ///             successfully executed (True if successful, False if not).
+    #[allow(dead_code)]
     pub fn trigger(&self, _model: &Model) { // *args, **kwargs,
                                             // func = partial(self._trigger, model, *args, **kwargs)
                                             // # pylint: disable=protected-access
@@ -125,6 +130,7 @@ impl<'a> Event<'a> {
 
     /// Internal trigger function called by the ``Machine`` instance. This should not
     ///         be called directly but via the public method ``Machine.trigger``.
+    #[allow(dead_code)]
     pub fn machine_trigger(&self, _model: Model) {
         // *args, **kwargs
         // state = self.machine.get_model_state(model)
@@ -167,6 +173,7 @@ impl<'a> Event<'a> {
     ///             trigger (str): The type of triggering event. Must be one of
     ///                 'before', 'after' or 'prepare'.
     ///             func (str): The name of the callback function.
+    #[allow(dead_code)]
     pub fn add_callback(self, _trigger: TransitionTriggerType, _func: TriggerFunction) {
         // for trans in itertools.chain(*self.transitions.values()):
         // trans.add_callback(trigger, func)

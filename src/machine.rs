@@ -56,10 +56,13 @@ pub struct Machine {
 }
 
 ///   separates callback type from state/transition name
+#[allow(dead_code)]
 const SEPARATOR: char = '_';
 ///    will be expanded to ALL states
+#[allow(dead_code)]
 const WILDCARD_ALL: char = '*';
 ///   will be expanded to source state
+#[allow(dead_code)]
 const WILDCARD_SAME: char = '=';
 // state_cls = State
 // transition_cls = Transition
@@ -110,6 +113,7 @@ impl Machine {
     ///                 This is also called when a transition raises an exception.
     ///             **kwargs additional arguments passed to next class in MRO. This can be ignored in most cases.
     /// model_attribute='state'???
+    #[allow(dead_code)]
     pub fn new(
         _model: Option<Model>,                                 /*=self*/
         _states: &[State],                                     //=None=None
@@ -191,6 +195,7 @@ impl Machine {
     }
 
     /// Register a model with the state machine, initializing triggers and callbacks. """
+    #[allow(dead_code)]
     pub fn add_model(&mut self, _model: &Model, _initial: Option<State> /*=None*/) {
         //models = listify(model)
         // if initial is None:
@@ -216,6 +221,7 @@ impl Machine {
     }
     /// Remove a model from the state machine. The model will still contain all previously added triggers
     ///         and callbacks, but will not receive updates when states or transitions are added to the Machine. """
+    #[allow(dead_code)]
     pub fn remove_model(&mut self, _model: &Model) {
         // models = listify(model)
         // for mod in models:
@@ -313,6 +319,7 @@ impl Machine {
     // self._finalize_event = listify(value)
 
     /// Return the State instance with the passed name.
+    #[allow(dead_code)]
     pub fn get_state(&self, _state: &State) -> &State {
         // if isinstance(state, Enum):
         // state = state.name
@@ -331,11 +338,13 @@ impl Machine {
     ///             model: model to be checked
     ///         Returns:
     ///             bool: Whether the model's current state is state.
+    #[allow(dead_code)]
     pub fn is_state(&self, _state: &State, _model: &Model) {
         // return getattr(model, self.model_attribute) == state
         todo!()
     }
 
+    #[allow(dead_code)]
     pub fn get_model_state(&self, _model: &Model) {
         // return self.get_state(getattr(model, self.model_attribute))
         todo!()
@@ -345,6 +354,7 @@ impl Machine {
     ///         Args:
     ///             state (str or Enum or State): value of state to be set
     ///             model (optional[object]): targeted model; if not set, all models will be set to 'state'
+    #[allow(dead_code)]
     pub fn set_state(&mut self, _state: &State, _model: Option<&Model> /*=None*/) {
         // if not isinstance(state, State):
         // state = self.get_state(state)
@@ -356,6 +366,7 @@ impl Machine {
     }
 
     /// Alias for add_states.
+    #[allow(dead_code)]
     pub fn add_state(
         &mut self,
         states: Vec<&State>,
@@ -391,6 +402,7 @@ impl Machine {
     ///                 overridden by any ignore_invalid_triggers explicitly
     ///                 passed in an individual state's initialization arguments.
     ///             **kwargs additional keyword arguments used by state mixins.
+    #[allow(dead_code)]
     pub fn add_states(
         &mut self,
         _states: Vec<&State>,
@@ -480,7 +492,7 @@ impl Machine {
     ///             **kwargs: Arbitrary keyword arguments which is passed to the triggered event.
     ///         Returns:
     ///             bool: True if a transitions has been conducted or the trigger event has been queued.
-    fn _get_trigger(&self, model: &Model, trigger_name: &str) {
+    fn _get_trigger(&self, _model: &Model, _trigger_name: &str) {
         //, *args, **kwargs
         // try:
         // event = self.events[trigger_name]
@@ -500,6 +512,7 @@ impl Machine {
     ///             *args: Tuple of source states.
     ///         Returns:
     ///             list of transition/trigger names.
+    #[allow(dead_code)]
     pub fn get_triggers(&self) {
         //, *args
         // states = set(args)
@@ -534,16 +547,17 @@ impl Machine {
     ///             prepare (str or list): Callables to call when the trigger is activated
     ///             **kwargs: Additional arguments which can be passed to the created transition.
     ///                 This is useful if you plan to extend Machine.Transition and require more parameters.
+    #[allow(dead_code)]
     pub fn add_transition(
         &mut self,
-        trigger: TriggerFunction,
-        source: &[&str],
-        dest: &str,
-        conditions: &[ConditionFunction], /*=None*/
-        unless: &[&ConditionFunction],    /*=None*/
-        before: &[&TriggerFunction],      /*None*/
-        after: &[&TriggerFunction],       /*=None*/
-        prepare: &[&TriggerFunction],     /*=None*/
+        _trigger: TriggerFunction,
+        _source: &[&str],
+        _dest: &str,
+        _conditions: &[ConditionFunction], /*=None*/
+        _unless: &[&ConditionFunction],    /*=None*/
+        _before: &[&TriggerFunction],      /*None*/
+        _after: &[&TriggerFunction],       /*=None*/
+        _prepare: &[&TriggerFunction],     /*=None*/
     ) {
         //, **kwargs
         // if trigger == self.model_attribute:
@@ -579,7 +593,8 @@ impl Machine {
     /// Add several transitions.
     ///         Args:
     ///             transitions (list): A list of transitions.
-    pub fn add_transitions(&mut self, transitions: &[&Transition]) { //Function
+    #[allow(dead_code)]
+    pub fn add_transitions(&mut self, _transitions: &[&Transition]) { //Function
                                                                      // for trans in listify(transitions):
                                                                      // if isinstance(trans, list):
                                                                      // self.add_transition(*trans)
@@ -614,17 +629,18 @@ impl Machine {
     ///             prepare (str or list): Callables to call when the trigger is activated
     ///             **kwargs: Additional arguments which can be passed to the created transition.
     ///                 This is useful if you plan to extend Machine.Transition and require more parameters.
+    #[allow(dead_code)]
     pub fn add_ordered_transitions(
         self,
-        states: &[&str],                  /*=None*/
-        trigger: Option<&str>,            /*='next_state'*/
-        transition_loop: bool,            /*=True*/
-        loop_includes_initial: bool,      /*=True*/
-        conditions: &[ConditionFunction], /*=None*/
-        unless: &[&ConditionFunction],    /*=None*/
-        before: &[&TriggerFunction],      /*=None*/
-        after: &[&TriggerFunction],       /*=None*/
-        prepare: &[&TriggerFunction],     /*=None*/
+        _states: &[&str],                  /*=None*/
+        _trigger: Option<&str>,            /*='next_state'*/
+        _transition_loop: bool,            /*=True*/
+        _loop_includes_initial: bool,      /*=True*/
+        _conditions: &[ConditionFunction], /*=None*/
+        _unless: &[&ConditionFunction],    /*=None*/
+        _before: &[&TriggerFunction],      /*=None*/
+        _after: &[&TriggerFunction],       /*=None*/
+        _prepare: &[&TriggerFunction],     /*=None*/
     ) {
         //, **kwargs
         // if states is None:
@@ -676,11 +692,12 @@ impl Machine {
     ///             trigger (str): Trigger name of the transition.
     ///             source (str): Limits list to transitions from a certain state.
     ///             dest (str): Limits list to transitions to a certain state.
+    #[allow(dead_code)]
     pub fn get_transitions(
         self,
-        trigger: Option<&str>, /*=""*/
-        source: Option<&str>,  /*="*"*/
-        dest: Option<&str>,    /*="*"*/
+        _trigger: Option<&str>, /*=""*/
+        _source: Option<&str>,  /*="*"*/
+        _dest: Option<&str>,    /*="*"*/
     ) {
         // if trigger:
         // try:
@@ -706,11 +723,12 @@ impl Machine {
     ///             trigger (str): Trigger name of the transition.
     ///             source (str): Limits removal to transitions from a certain state.
     ///             dest (str): Limits removal to transitions to a certain state.
+    #[allow(dead_code)]
     pub fn remove_transition(
         self,
-        trigger: &str,
-        source: Option<&str>, /*="*"*/
-        dest: Option<&str>,   /*="*"*/
+        _trigger: &str,
+        _source: Option<&str>, /*="*"*/
+        _dest: Option<&str>,   /*="*"*/
     ) {
         // source = listify(source) if source != "*" else source
         // dest = listify(dest) if dest != "*" else dest
@@ -741,7 +759,8 @@ impl Machine {
     ///             **kwargs (dict): Dictionary of keyword arguments passed to the event trigger
     ///         Returns:
     ///             bool The truth value of all triggers combined with AND
-    pub fn dispatch(self, trigger: TriggerFunction) {
+    #[allow(dead_code)]
+    pub fn dispatch(self, _trigger: TriggerFunction) {
         //, *args, **kwargs
         // return all([getattr(model, trigger)(*args, **kwargs) for model in self.models])
         todo!()
@@ -766,7 +785,7 @@ impl Machine {
     ///             event_data (EventData): An EventData instance to pass to the
     ///                 callback (if event sending is enabled) or to extract arguments
     ///                 from (if event sending is disabled).
-    pub fn callback(&self, func: &TriggerFunction, event_data: &EventData) {
+    pub fn callback(&self, _func: &TriggerFunction, _event_data: &EventData) {
         // func = self.resolve_callable(func, event_data)
         // if self.send_event:
         // func(event_data)
@@ -774,7 +793,7 @@ impl Machine {
         // func(*event_data.args, **event_data.kwargs)
         todo!()
     }
-    fn _has_state(self, state: &State, raise_error: bool /*=False*/) {
+    fn _has_state(self, _state: &State, _raise_error: bool /*=False*/) {
         // found = state in self.states.values()
         // if not found and raise_error:
         // msg = 'State %s has not been added to the machine' % (state.name if hasattr(state, 'name') else state)
